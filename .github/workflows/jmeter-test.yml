@@ -34,6 +34,11 @@ jobs:
           name: Performance-Test-Report
           path: ./html-report
 
+      # Zip the HTML report for email
+      - name: Zip the HTML report
+        run: |
+          zip -r html-report.zip ./html-report
+
       # Send the report via email
       - name: Send Email
         uses: dawidd6/action-send-mail@v3
@@ -46,4 +51,4 @@ jobs:
           body: "Find the attached performance test report."
           to: "kaanozturkbusiness@gmail.com"
           from: ${{ secrets.EMAIL_USERNAME }}
-          attachments: ./html-report/index.html 
+          attachments: ./html-report.zip
