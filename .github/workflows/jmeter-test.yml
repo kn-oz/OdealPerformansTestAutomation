@@ -40,6 +40,6 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "Performance Test Report"
           body: "Find the attached performance test report."
-          to: "recipient@example.com"
+          to: "kaanozturkbusiness@gmail.com"
           from: ${{ secrets.EMAIL_USERNAME }}
           attachments: ./html-report/index.html
