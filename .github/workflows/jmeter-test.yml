@@ -1,63 +1,44 @@
-name: JMeter Performance Test
+name: Odeal Performance Test Automation
 
 on:
   schedule:
-    - cron: '0 * * * *' # Run every hour
-  workflow_dispatch: # Allow manual triggering of the workflow
+    - cron: "0 * * * *" # Runs every hour
 
 jobs:
   performance-test:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
-      - name: Checkout code
+      # Checkout the repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Java (required for JMeter)
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-
-      # Step 3: Install JMeter
-      - name: Install JMeter
-        run: |
-          wget https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.1.tgz
-          tar -xzf apache-jmeter-5.6.1.tgz
-          mv apache-jmeter-5.6.1 jmeter
-
-      # Step 4: Run JMeter Test
+      # Run JMeter performance test
       - name: Run JMeter Test
         run: |
-          ./jmeter/bin/jmeter -n -t OdealWebsiteLoadTest.jmx -l OdealTestResults.jtl
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jdk-headless
+          curl -L https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.5.tgz -o jmeter.tgz
+          tar -xzf jmeter.tgz
+          ./apache-jmeter-5.5/bin/jmeter -n -t ./OdealWebsiteLoadTest.jmx -l ./results.jtl -e -o ./html-report
 
-      # Step 5: Generate HTML Report
-      - name: Generate HTML Report
-        run: |
-          ./jmeter/bin/jmeter -g OdealTestResults.jtl -o jmeter-report
-
-      # Step 6: Upload HTML Report (optional, to check the report in Actions artifacts)
+      # Upload HTML report as an artifact
       - name: Upload HTML Report
         uses: actions/upload-artifact@v3
         with:
-          name: jmeter-report
-          path: jmeter-report
+          name: Performance-Test-Report
+          path: ./html-report
 
-      # Step 7: Send Report via Email
-      - name: Send Report via Email
+      # Send the report via email
+      - name: Send Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.SMTP_SERVER }}
           server_port: ${{ secrets.SMTP_PORT }}
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "JMeter Performance Test Report"
-          body: |
-            Hi,
-            
-            Please find attached the latest performance test report for Odeal Website.
+          subject: "Performance Test Report"
+          body: "Find the attached performance test report."
+          to: "recipient@example.com"
           from: ${{ secrets.EMAIL_USERNAME }}
-          to: your-recipient-email@example.com
-          content_type: text/html
-          attachments: jmeter-report/index.html
+          attachments: ./html-report/index.html
