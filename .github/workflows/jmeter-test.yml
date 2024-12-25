@@ -14,8 +14,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Install JDK and JMeter
-      - name: Setup JDK and JMeter
+      # Run JMeter performance test
+      - name: Run JMeter Test
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-11-jdk-headless
@@ -23,15 +23,9 @@ jobs:
           # Download and extract JMeter
           curl -L https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.3.tgz -o jmeter.tgz
           tar -xzf jmeter.tgz
-
-      # Run JMeter test plan and generate the report
-      - name: Run JMeter Test
-        run: |
-          # Ensure JMeter is in the correct directory
-          cd ./apache-jmeter-5.6.3/bin
           
-          # Run the JMeter test and generate the report
-          ./jmeter -n -t ../OdealWebsiteLoadTest.jmx -l ../results.jtl -e -o ../html-report
+          # Run JMeter test plan with the correct version
+          ./apache-jmeter-5.6.3/bin/jmeter -n -t ./OdealWebsiteLoadTest.jmx -l ./results.jtl -e -o ./html-report
 
       # Upload HTML report as an artifact
       - name: Upload HTML Report
@@ -52,4 +46,4 @@ jobs:
           body: "Find the attached performance test report."
           to: "kaanozturkbusiness@gmail.com"
           from: ${{ secrets.EMAIL_USERNAME }}
-          attachments: ./html-report/index.html
+          attachments: ./html-report/index.html 
