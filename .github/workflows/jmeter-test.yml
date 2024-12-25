@@ -1,0 +1,63 @@
+name: JMeter Performance Test
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Run every hour
+  workflow_dispatch: # Allow manual triggering of the workflow
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Java (required for JMeter)
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+
+      # Step 3: Install JMeter
+      - name: Install JMeter
+        run: |
+          wget https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.1.tgz
+          tar -xzf apache-jmeter-5.6.1.tgz
+          mv apache-jmeter-5.6.1 jmeter
+
+      # Step 4: Run JMeter Test
+      - name: Run JMeter Test
+        run: |
+          ./jmeter/bin/jmeter -n -t OdealWebsiteLoadTest.jmx -l OdealTestResults.jtl
+
+      # Step 5: Generate HTML Report
+      - name: Generate HTML Report
+        run: |
+          ./jmeter/bin/jmeter -g OdealTestResults.jtl -o jmeter-report
+
+      # Step 6: Upload HTML Report (optional, to check the report in Actions artifacts)
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jmeter-report
+          path: jmeter-report
+
+      # Step 7: Send Report via Email
+      - name: Send Report via Email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "JMeter Performance Test Report"
+          body: |
+            Hi,
+            
+            Please find attached the latest performance test report for Odeal Website.
+          from: ${{ secrets.EMAIL_USERNAME }}
+          to: your-recipient-email@example.com
+          content_type: text/html
+          attachments: jmeter-report/index.html
