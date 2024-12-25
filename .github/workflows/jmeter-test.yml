@@ -3,6 +3,7 @@ name: Odeal Performance Test Automation
 on:
   schedule:
     - cron: "0 * * * *" # Runs every hour
+  workflow_dispatch: # Allows manual trigger
 
 jobs:
   performance-test:
