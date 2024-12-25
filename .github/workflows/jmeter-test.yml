@@ -24,8 +24,8 @@ jobs:
           curl -L https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-5.6.3.tgz -o jmeter.tgz
           tar -xzf jmeter.tgz
           
-          # Run JMeter test plan
-          ./apache-jmeter-5.5/bin/jmeter -n -t ./OdealWebsiteLoadTest.jmx -l ./results.jtl -e -o ./html-report
+          # Run JMeter test plan with the correct version
+          ./apache-jmeter-5.6.3/bin/jmeter -n -t ./OdealWebsiteLoadTest.jmx -l ./results.jtl -e -o ./html-report
 
       # Upload HTML report as an artifact
       - name: Upload HTML Report
